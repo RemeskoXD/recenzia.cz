@@ -7,9 +7,13 @@ import { AnimatedDiv } from '../components/AnimatedDiv';
 import { Download, Filter, Star, Archive, LogOut, LayoutDashboard, QrCode, MessageSquare, TrendingUp, AlertCircle, PieChart as PieChartIcon, Tag, Settings, Save, Code, User, Mail, Phone, FileText, Globe } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from 'recharts';
 
+import { Helmet } from 'react-helmet-async';
+import { useLanguage } from '../contexts/LanguageContext';
+
 export default function DashboardPage() {
   const { companyId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [company, setCompany] = useState(null);
   const [usage, setUsage] = useState(null);

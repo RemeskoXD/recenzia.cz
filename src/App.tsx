@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import HomePage from './pages/HomePage';
 import ReviewPage from './pages/ReviewPage';
 import DashboardPage from './pages/DashboardPage';
@@ -125,8 +126,6 @@ function Footer() {
     </footer>
   );
 }
-
-import { HelmetProvider } from 'react-helmet-async';
 
 export default function App() {
   return (

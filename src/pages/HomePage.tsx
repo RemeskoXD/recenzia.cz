@@ -3,6 +3,7 @@ import { AnimatedDiv } from '../components/AnimatedDiv';
 import { Star, CheckCircle, ArrowRight, ShieldCheck, TrendingUp, Users, HelpCircle, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Helmet } from 'react-helmet-async';
 
 export default function HomePage() {
   const isLoggedIn = !!localStorage.getItem('companyId');
@@ -11,6 +12,11 @@ export default function HomePage() {
 
   return (
     <div className="overflow-hidden">
+      <Helmet>
+        <title>{t('heroTitle1')} {t('heroTitle2')} | Recenzia.cz</title>
+        <meta name="description" content={t('heroSubtitle')} />
+      </Helmet>
+
       {/* Hero Section */}
       <AnimatedDiv className="text-center max-w-5xl mx-auto py-20 px-4">
         <div className="inline-block bg-sky-50 border border-sky-100 rounded-full px-4 py-1.5 mb-6 animate-fade-in-up">
