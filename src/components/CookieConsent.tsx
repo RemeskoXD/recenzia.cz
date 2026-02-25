@@ -1,51 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { X } from 'lucide-react';
 
-export function CookieConsent() {
+const CookieConsent = () => {
+  const [show, setShow] = useState(false);
   const { t } = useLanguage();
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
     if (!consent) {
-      setIsVisible(true);
+      setShow(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
-    setIsVisible(false);
+    localStorage.setItem('cookieConsent', 'true');
+    setShow(false);
   };
 
-  const handleDecline = () => {
-    localStorage.setItem('cookieConsent', 'declined');
-    setIsVisible(false);
-  };
-
-  if (!isVisible) return null;
+  if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-4 shadow-lg z-50 animate-slide-up">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-slate-300 flex-1">
-          {t('cookieBannerText')}
-        </div>
-        <div className="flex gap-3">
-          <button 
-            onClick={handleDecline}
-            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition"
-          >
-            {t('cookieDecline')}
-          </button>
-          <button 
-            onClick={handleAccept}
-            className="px-6 py-2 text-sm font-bold bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition shadow-sm"
-          >
-            {t('cookieAccept')}
-          </button>
-        </div>
+    <div className="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-4 z-50 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+      <div className="text-sm">
+        <p className="font-bold mb-1">{t('cookiesTitle')}</p>
+        <p>{t('cookiesText')}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handleAccept} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          {t('accept')}
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default CookieConsent;

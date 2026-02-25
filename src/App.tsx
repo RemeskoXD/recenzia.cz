@@ -126,29 +126,33 @@ function Footer() {
   );
 }
 
+import { HelmetProvider } from 'react-helmet-async';
+
 export default function App() {
   return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <div className="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col">
-          <Navigation />
-          <main className="flex-grow w-full">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/review/:companyId" element={<ReviewPage />} />
-              <Route path="/dashboard/:companyId" element={<DashboardPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/widget/:companyId" element={<WidgetPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </main>
-          <Footer />
-          <CookieConsent />
-        </div>
-      </BrowserRouter>
-    </LanguageProvider>
+    <HelmetProvider>
+      <LanguageProvider>
+        <BrowserRouter>
+          <div className="bg-slate-50 min-h-screen font-sans text-slate-800 flex flex-col">
+            <Navigation />
+            <main className="flex-grow w-full">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/review/:companyId" element={<ReviewPage />} />
+                <Route path="/dashboard/:companyId" element={<DashboardPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/widget/:companyId" element={<WidgetPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </main>
+            <Footer />
+            <CookieConsent />
+          </div>
+        </BrowserRouter>
+      </LanguageProvider>
+    </HelmetProvider>
   );
 }

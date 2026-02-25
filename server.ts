@@ -255,6 +255,14 @@ async function startServer() {
         GROUP BY source
       `, [companyId]);
 
+      // Country stats
+      const [countryRows]: any = await pool.query(`
+        SELECT country as name, COUNT(*) as count
+        FROM reviews
+        WHERE company_id = ? AND country IS NOT NULL AND country != '' AND country != 'Unknown'
+        GROUP BY country
+      `, [companyId]);
+
       // Average rating
       const [avgRows]: any = await pool.query(`
         SELECT AVG(rating) as average FROM reviews WHERE company_id = ?
@@ -263,6 +271,7 @@ async function startServer() {
       res.json({
         daily: dailyRows,
         sources: sourceRows,
+        countries: countryRows,
         average: avgRows[0].average ? Number(avgRows[0].average).toFixed(1) : 0
       });
     } catch (error) {

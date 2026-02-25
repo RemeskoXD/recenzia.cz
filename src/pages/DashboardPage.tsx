@@ -4,18 +4,16 @@ import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
 import { jsPDF } from 'jspdf';
 import { AnimatedDiv } from '../components/AnimatedDiv';
-import { Download, Filter, Star, Archive, LogOut, LayoutDashboard, QrCode, MessageSquare, TrendingUp, AlertCircle, PieChart as PieChartIcon, Tag, Settings, Save, Code, User, Mail, Phone, FileText } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { useLanguage } from '../contexts/LanguageContext';
+import { Download, Filter, Star, Archive, LogOut, LayoutDashboard, QrCode, MessageSquare, TrendingUp, AlertCircle, PieChart as PieChartIcon, Tag, Settings, Save, Code, User, Mail, Phone, FileText, Globe } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from 'recharts';
 
 export default function DashboardPage() {
   const { companyId } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [company, setCompany] = useState(null);
   const [usage, setUsage] = useState(null);
-  const [statsData, setStatsData] = useState({ daily: [], sources: [] });
+  const [statsData, setStatsData] = useState({ daily: [], sources: [], countries: [] });
   const [showArchived, setShowArchived] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // overview, reviews, qrcode, settings
   const [filterRating, setFilterRating] = useState('all'); // all, positive, negative
@@ -231,12 +229,12 @@ export default function DashboardPage() {
               </span>
             )}
           </h2>
-          <p className="text-slate-500 text-sm mt-1">{t('adminTitle')}</p>
+          <p className="text-slate-500 text-sm mt-1">Administrace recenzí</p>
         </div>
         <div className="flex gap-3">
           <button onClick={handleLogout} className="flex items-center gap-2 text-slate-600 hover:text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition text-sm font-medium">
             <LogOut size={18} />
-            {t('logout')}
+            Odhlásit se
           </button>
         </div>
       </div>
@@ -248,33 +246,33 @@ export default function DashboardPage() {
             onClick={() => setActiveTab('overview')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition ${activeTab === 'overview' ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
           >
-            <LayoutDashboard size={20} /> {t('dashboard')}
+            <LayoutDashboard size={20} /> Přehled
           </button>
           <button 
             onClick={() => setActiveTab('reviews')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition ${activeTab === 'reviews' ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
           >
-            <MessageSquare size={20} /> {t('reviews')}
+            <MessageSquare size={20} /> Recenze
           </button>
           <button 
             onClick={() => setActiveTab('qrcode')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition ${activeTab === 'qrcode' ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
           >
-            <QrCode size={20} /> {t('qrCode')}
+            <QrCode size={20} /> QR Kód
           </button>
           {usage?.plan === 'premium' && (
             <button 
               onClick={() => setActiveTab('widget')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition ${activeTab === 'widget' ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
             >
-              <Code size={20} /> {t('webWidget')}
+              <Code size={20} /> Web Widget
             </button>
           )}
           <button 
             onClick={() => setActiveTab('settings')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition ${activeTab === 'settings' ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
           >
-            <Settings size={20} /> {t('settings')}
+            <Settings size={20} /> Nastavení
           </button>
         </div>
 
@@ -292,7 +290,7 @@ export default function DashboardPage() {
                       <MessageSquare size={24} />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500 font-medium">{t('totalReviews')}</p>
+                      <p className="text-sm text-slate-500 font-medium">Celkem recenzí</p>
                       <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
                     </div>
                   </div>
@@ -303,7 +301,7 @@ export default function DashboardPage() {
                       <TrendingUp size={24} />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500 font-medium">{t('positive')}</p>
+                      <p className="text-sm text-slate-500 font-medium">Pozitivní</p>
                       <p className="text-2xl font-bold text-slate-900">{stats.positive}</p>
                     </div>
                   </div>
@@ -314,7 +312,7 @@ export default function DashboardPage() {
                       <AlertCircle size={24} />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500 font-medium">{t('negative')}</p>
+                      <p className="text-sm text-slate-500 font-medium">Negativní</p>
                       <p className="text-2xl font-bold text-slate-900">{stats.negative}</p>
                     </div>
                   </div>
@@ -326,7 +324,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Daily Trend Chart */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 className="text-lg font-bold mb-4 text-slate-900">{t('recentReviews')}</h3>
+                    <h3 className="text-lg font-bold mb-4 text-slate-900">Vývoj recenzí (30 dní)</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={statsData.daily}>
@@ -351,7 +349,7 @@ export default function DashboardPage() {
 
                   {/* Sources Pie Chart */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 className="text-lg font-bold mb-4 text-slate-900">{t('reviewSources')}</h3>
+                    <h3 className="text-lg font-bold mb-4 text-slate-900">Zdroje recenzí</h3>
                     {statsData.sources.length > 0 ? (
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -376,7 +374,32 @@ export default function DashboardPage() {
                       </div>
                     ) : (
                       <div className="h-64 flex items-center justify-center text-slate-400 text-sm">
-                        {t('noSourceData')}
+                        Zatím žádná data o zdrojích
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Countries Chart */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 col-span-1 lg:col-span-2">
+                    <h3 className="text-lg font-bold mb-4 text-slate-900">Země původu recenzí</h3>
+                    {statsData.countries && statsData.countries.length > 0 ? (
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={statsData.countries}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                            <YAxis stroke="#94a3b8" fontSize={12} />
+                            <Tooltip 
+                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                              cursor={{ fill: 'transparent' }}
+                            />
+                            <Bar dataKey="count" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={40} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-slate-400 text-sm">
+                        Zatím žádná data o zemích
                       </div>
                     )}
                   </div>
@@ -385,12 +408,12 @@ export default function DashboardPage() {
                 /* Basic Plan Upsell */
                 <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-lg relative overflow-hidden">
                   <div className="relative z-10">
-                    <h3 className="text-xl font-bold mb-2">{t('premiumUpsellTitle')}</h3>
+                    <h3 className="text-xl font-bold mb-2">Získejte detailní přehled s Premium</h3>
                     <p className="text-slate-300 mb-6 max-w-md">
-                      {t('premiumUpsellDesc')}
+                      Sledujte vývoj recenzí v čase a zjistěte, které QR kódy (stoly, pobočky, zaměstnanci) vám přináší nejvíce hodnocení.
                     </p>
                     <button className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg font-semibold transition">
-                      {t('upgradePremium')}
+                      Upgradovat na Premium
                     </button>
                   </div>
                   <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
@@ -401,7 +424,7 @@ export default function DashboardPage() {
               {usage && usage.plan === 'basic' && (
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-slate-900">{t('monthlyLimit')}</h3>
+                    <h3 className="font-bold text-slate-900">Měsíční limit (Basic)</h3>
                     <span className="text-sm text-slate-500">{usage.usage} / 300</span>
                   </div>
                   <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
@@ -412,7 +435,7 @@ export default function DashboardPage() {
                   </div>
                   {usage.usage >= 250 && (
                     <p className="text-sm text-amber-600 mt-3 flex items-center gap-2">
-                      <AlertCircle size={16} /> {t('limitWarning')}
+                      <AlertCircle size={16} /> Blížíte se k limitu. Zvažte upgrade na Premium.
                     </p>
                   )}
                 </div>
@@ -424,33 +447,33 @@ export default function DashboardPage() {
           {activeTab === 'reviews' && (
             <AnimatedDiv className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h3 className="text-lg font-bold text-slate-900">{t('reviewsList')}</h3>
+                <h3 className="text-lg font-bold text-slate-900">Seznam recenzí</h3>
                 <div className="flex gap-2">
                   <div className="flex bg-slate-100 p-1 rounded-lg">
                     <button 
                       onClick={() => setFilterRating('all')}
                       className={`px-3 py-1.5 text-sm font-medium rounded-md transition ${filterRating === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                      {t('all')}
+                      Vše
                     </button>
                     <button 
                       onClick={() => setFilterRating('negative')}
                       className={`px-3 py-1.5 text-sm font-medium rounded-md transition ${filterRating === 'negative' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                      {t('negative')}
+                      Negativní
                     </button>
                     <button 
                       onClick={() => setFilterRating('positive')}
                       className={`px-3 py-1.5 text-sm font-medium rounded-md transition ${filterRating === 'positive' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                      {t('positive')}
+                      Pozitivní
                     </button>
                   </div>
                   <button 
                     onClick={() => setShowArchived(!showArchived)}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition ${showArchived ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                   >
-                    <Archive size={16} /> {showArchived ? t('hideArchive') : t('archive')}
+                    <Archive size={16} /> {showArchived ? 'Skrýt archiv' : 'Archiv'}
                   </button>
                   {usage?.plan === 'premium' && (
                     <a 
@@ -458,7 +481,7 @@ export default function DashboardPage() {
                       className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition"
                       download
                     >
-                      <Download size={16} /> {t('exportCsv')}
+                      <Download size={16} /> Export CSV
                     </a>
                   )}
                 </div>
@@ -483,11 +506,16 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-1">
                           <div className="flex items-center gap-2">
                             <span className={`text-sm font-bold px-2 py-0.5 rounded ${review.rating >= (company?.positive_threshold || 5) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                              {review.rating} {review.rating === 1 ? t('star') : review.rating >= 2 && review.rating <= 4 ? t('stars24') : t('stars')}
+                              {review.rating} {review.rating === 1 ? 'hvězdička' : review.rating >= 2 && review.rating <= 4 ? 'hvězdičky' : 'hvězdiček'}
                             </span>
                             {review.source && (
                               <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1">
                                 <Tag size={10} /> {review.source}
+                              </span>
+                            )}
+                            {review.country && (
+                              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1">
+                                <Globe size={10} /> {review.country}
                               </span>
                             )}
                           </div>
@@ -499,7 +527,7 @@ export default function DashboardPage() {
                         
                         {(review.customer_name || review.customer_email || review.customer_phone) && (
                           <div className="mt-3 pt-3 border-t border-slate-100">
-                            <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">{t('customerContact')}</p>
+                            <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Kontaktní údaje zákazníka</p>
                             <div className="flex flex-wrap gap-4 text-sm">
                               {review.customer_name && (
                                 <div className="flex items-center gap-2 text-slate-700">
@@ -529,7 +557,7 @@ export default function DashboardPage() {
 
                         {review.archived && (
                           <span className="inline-block mt-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
-                            {t('archived')}
+                            Archivováno
                           </span>
                         )}
                       </div>
@@ -549,7 +577,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="p-12 text-center text-slate-500">
                     <Filter size={48} className="mx-auto mb-4 text-slate-300" />
-                    <p>{t('noReviewsFilter')}</p>
+                    <p>Žádné recenze neodpovídají filtrům.</p>
                   </div>
                 )}
               </div>
@@ -559,7 +587,7 @@ export default function DashboardPage() {
           {/* QR Code Tab */}
           {activeTab === 'qrcode' && (
             <AnimatedDiv className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
-              <h3 className="text-xl font-bold mb-6 text-slate-900">{t('qrCodeTitle')}</h3>
+              <h3 className="text-xl font-bold mb-6 text-slate-900">Váš QR kód pro sběr recenzí</h3>
               
               <div className="flex flex-col lg:flex-row items-start justify-center gap-12">
                 {/* Preview */}
@@ -588,23 +616,23 @@ export default function DashboardPage() {
                       onClick={downloadQRCode}
                       className="w-full flex items-center justify-center gap-2 bg-sky-600 text-white py-3 rounded-xl font-semibold hover:bg-sky-700 transition shadow-lg hover:shadow-sky-500/25"
                     >
-                      <Download size={20} /> {t('downloadPng')}
+                      <Download size={20} /> Stáhnout jako obrázek (PNG)
                     </button>
                     <button 
                       onClick={generatePDF}
                       className="w-full flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 py-3 rounded-xl font-semibold hover:bg-slate-50 transition shadow-sm"
                     >
-                      <FileText size={20} /> {t('downloadPdf')}
+                      <FileText size={20} /> Stáhnout leták (PDF)
                     </button>
                   </div>
                 </div>
 
                 {/* Controls */}
                 <div className="flex-1 w-full max-w-md space-y-6 text-left bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <h4 className="font-bold text-slate-900 border-b pb-2 mb-4">{t('designCustomization')}</h4>
+                  <h4 className="font-bold text-slate-900 border-b pb-2 mb-4">Přizpůsobení designu</h4>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t('qrColor')}</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Barva QR kódu</label>
                     <div className="flex items-center gap-4">
                       <input
                         type="color"
@@ -616,7 +644,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t('bgColor')}</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Barva pozadí</label>
                     <div className="flex items-center gap-4">
                       <input
                         type="color"
@@ -628,13 +656,13 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t('logoCenter')}</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Logo uprostřed</label>
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         onClick={() => setSettingsQrLogo('none')}
                         className={`p-2 border rounded-lg text-sm ${settingsQrLogo === 'none' ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
                       >
-                        {t('none')}
+                        Žádné
                       </button>
                       <button
                         onClick={() => setSettingsQrLogo('google')}
@@ -646,7 +674,7 @@ export default function DashboardPage() {
                         onClick={() => setSettingsQrLogo('star')}
                         className={`p-2 border rounded-lg text-sm ${settingsQrLogo === 'star' ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
                       >
-                        {t('starIcon')}
+                        Hvězda
                       </button>
                     </div>
                   </div>
@@ -655,7 +683,7 @@ export default function DashboardPage() {
                     <div className="pt-4 border-t border-slate-200 mt-4">
                       <div className="flex justify-between items-center mb-2">
                         <label className="block text-sm font-medium text-slate-700">
-                          {t('sourceLabel')}
+                          Označení zdroje (Premium)
                         </label>
                         <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">PRO</span>
                       </div>
@@ -663,11 +691,11 @@ export default function DashboardPage() {
                         type="text" 
                         value={qrSource}
                         onChange={(e) => setQrSource(e.target.value)}
-                        placeholder={t('sourcePlaceholder')}
+                        placeholder="např. Stůl 1, Recepce"
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
                       />
                       <p className="text-xs text-slate-500 mt-2">
-                        {t('sourceNote')}
+                        Přidáním štítku můžete sledovat, odkud recenze přicházejí.
                       </p>
                     </div>
                   )}
@@ -677,10 +705,10 @@ export default function DashboardPage() {
                       onClick={handleSaveSettings}
                       className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-2.5 rounded-lg hover:bg-slate-800 transition font-medium"
                     >
-                      <Save size={18} /> {t('saveAppearance')}
+                      <Save size={18} /> Uložit tento vzhled
                     </button>
                     {settingsSaved && (
-                      <p className="text-green-600 text-sm text-center mt-2 font-medium">{t('appearanceSaved')}</p>
+                      <p className="text-green-600 text-sm text-center mt-2 font-medium">Vzhled byl uložen!</p>
                     )}
                   </div>
                 </div>
@@ -691,13 +719,14 @@ export default function DashboardPage() {
           {/* Widget Tab (Premium Only) */}
           {activeTab === 'widget' && usage?.plan === 'premium' && (
             <AnimatedDiv className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-              <h3 className="text-xl font-bold mb-6 text-slate-900">{t('webWidgetTitle')}</h3>
+              <h3 className="text-xl font-bold mb-6 text-slate-900">Webový Widget</h3>
               <p className="text-slate-600 mb-6">
-                {t('webWidgetDesc')}
+                Zobrazte své průměrné hodnocení a počet spokojených zákazníků přímo na svém webu. 
+                Zkopírujte níže uvedený kód a vložte jej do HTML vaší stránky.
               </p>
 
               <div className="mb-8">
-                <h4 className="text-sm font-bold text-slate-700 mb-2">{t('widgetPreview')}</h4>
+                <h4 className="text-sm font-bold text-slate-700 mb-2">Náhled widgetu:</h4>
                 <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 inline-block">
                   <iframe 
                     src={`/widget/${companyId}`} 
@@ -711,7 +740,7 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <h4 className="text-sm font-bold text-slate-700 mb-2">{t('embedCode')}</h4>
+                <h4 className="text-sm font-bold text-slate-700 mb-2">Kód pro vložení (iFrame):</h4>
                 <div className="relative">
                   <textarea 
                     readOnly 
@@ -722,7 +751,7 @@ export default function DashboardPage() {
                     onClick={() => navigator.clipboard.writeText(`<iframe src="${window.location.origin}/widget/${companyId}" width="250" height="80" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`)}
                     className="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded text-xs font-medium transition"
                   >
-                    {t('copyCode')}
+                    Kopírovat kód
                   </button>
                 </div>
               </div>
@@ -732,15 +761,15 @@ export default function DashboardPage() {
           {/* Settings Tab */}
           {activeTab === 'settings' && (
             <AnimatedDiv className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-              <h3 className="text-xl font-bold mb-6 text-slate-900">{t('companySettings')}</h3>
+              <h3 className="text-xl font-bold mb-6 text-slate-900">Nastavení firmy</h3>
               
               <form onSubmit={handleSaveSettings} className="space-y-8 max-w-2xl">
                 
                 {/* Základní nastavení */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-bold text-slate-900 border-b pb-2">{t('basicInfo')}</h4>
+                  <h4 className="text-md font-bold text-slate-900 border-b pb-2">Základní informace</h4>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">{t('companyName')}</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Název firmy</label>
                     <input
                       type="text"
                       value={settingsName}
@@ -751,38 +780,38 @@ export default function DashboardPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">{t('customQuestion')}</label>
-                    <p className="text-xs text-slate-500 mb-2">{t('customQuestionDesc')}</p>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Vlastní otázka pro zákazníky</label>
+                    <p className="text-xs text-slate-500 mb-2">Nahradí výchozí text "Jak jste spokojeni s [Název firmy]?". Nechte prázdné pro výchozí text.</p>
                     <input
                       type="text"
                       value={settingsQuestion}
                       onChange={(e) => setSettingsQuestion(e.target.value)}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                      placeholder={t('customQuestionPlaceholder')}
+                      placeholder="Např. Jak vám dnes chutnalo?"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">{t('satisfactionThreshold')}</label>
-                    <p className="text-xs text-slate-500 mb-2">{t('satisfactionThresholdDesc')}</p>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Hranice spokojenosti</label>
+                    <p className="text-xs text-slate-500 mb-2">Kolik hvězdiček považujete za pozitivní recenzi? (Zákazníci s tímto a vyšším hodnocením budou přesměrováni na veřejné platformy).</p>
                     <select
                       value={settingsThreshold}
                       onChange={(e) => setSettingsThreshold(Number(e.target.value))}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"
                     >
-                      <option value={5}>{t('only5')}</option>
-                      <option value={4}>{t('4and5')}</option>
+                      <option value={5}>Pouze 5 hvězdiček</option>
+                      <option value={4}>4 a 5 hvězdiček</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Odkazy na platformy */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-bold text-slate-900 border-b pb-2">{t('reviewPlatforms')}</h4>
-                  <p className="text-sm text-slate-500">{t('reviewPlatformsDesc')}</p>
+                  <h4 className="text-md font-bold text-slate-900 border-b pb-2">Rozcestník recenzí (Platformy)</h4>
+                  <p className="text-sm text-slate-500">Pokud vyplníte více odkazů, spokojený zákazník si bude moci vybrat, kde vám recenzi zanechá. Pokud vyplníte jen jeden, bude přesměrován automaticky.</p>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">{t('mainUrl')}</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Hlavní URL (např. Google)</label>
                     <input
                       type="url"
                       value={settingsUrl}
@@ -827,10 +856,10 @@ export default function DashboardPage() {
                 {usage?.plan === 'premium' && (
                   <div className="space-y-4">
                     <h4 className="text-md font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                      <Star size={18} className="text-amber-500" fill="currentColor" /> {t('premiumFeatures')}
+                      <Star size={18} className="text-amber-500" fill="currentColor" /> Premium funkce
                     </h4>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">{t('qrColor')}</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Barva QR kódu</label>
                       <div className="flex items-center gap-4">
                         <input
                           type="color"
@@ -838,23 +867,23 @@ export default function DashboardPage() {
                           onChange={(e) => setSettingsQrColor(e.target.value)}
                           className="h-10 w-20 cursor-pointer border-0 p-0"
                         />
-                        <span className="text-sm text-slate-500">{t('colorMatch')}</span>
+                        <span className="text-sm text-slate-500">Vyberte barvu, která ladí s vaší značkou.</span>
                       </div>
                     </div>
                   </div>
                 )}
 
                 <div className="pt-4 border-t border-slate-100">
-                  <h4 className="text-md font-bold text-slate-900 mb-4">{t('changePassword')}</h4>
+                  <h4 className="text-md font-bold text-slate-900 mb-4">Změna hesla</h4>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">{t('newPassword')}</label>
-                    <p className="text-xs text-slate-500 mb-2">{t('newPasswordDesc')}</p>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Nové heslo</label>
+                    <p className="text-xs text-slate-500 mb-2">Vyplňte pouze pokud chcete změnit heslo.</p>
                     <input
                       type="password"
                       value={settingsPassword}
                       onChange={(e) => setSettingsPassword(e.target.value)}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                      placeholder={t('newPassword')}
+                      placeholder="Nové heslo"
                       minLength={6}
                     />
                   </div>
@@ -865,12 +894,12 @@ export default function DashboardPage() {
                     type="submit"
                     className="flex items-center gap-2 bg-sky-600 text-white px-6 py-2.5 rounded-lg hover:bg-sky-700 transition font-semibold shadow-sm"
                   >
-                    <Save size={20} /> {t('saveChanges')}
+                    <Save size={20} /> Uložit změny
                   </button>
                   
                   {settingsSaved && (
                     <span className="text-green-600 font-medium flex items-center gap-2 animate-fade-in">
-                      <span className="text-xl">✓</span> {t('saved')}
+                      <span className="text-xl">✓</span> Uloženo
                     </span>
                   )}
                 </div>
@@ -878,7 +907,123 @@ export default function DashboardPage() {
             </AnimatedDiv>
           )}
 
+          {/* AI Analysis Tab */}
+          {activeTab === 'ai' && (
+            <AnimatedDiv className="space-y-6">
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 rounded-2xl shadow-lg text-white">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                      <Sparkles className="text-yellow-300" /> AI Analýza Recenzí
+                    </h2>
+                    <p className="text-indigo-100 max-w-2xl">
+                      Umělá inteligence analyzuje vaše poslední recenze a poskytuje cenné vhledy pro zlepšení vašeho podnikání.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={fetchAiAnalysis}
+                    disabled={loadingAi}
+                    className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 backdrop-blur-sm whitespace-nowrap"
+                  >
+                    {loadingAi ? 'Analyzuji...' : 'Aktualizovat analýzu'}
+                  </button>
+                </div>
+              </div>
 
+              {loadingAi ? (
+                <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+                  <div className="animate-spin w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
+                  <h3 className="text-lg font-semibold text-slate-900">Generuji analýzu...</h3>
+                  <p className="text-slate-500">Prosím čekejte, analyzuji vaše recenze.</p>
+                </div>
+              ) : aiAnalysis ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Sentiment & Summary */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 md:col-span-2">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                      <div className={`p-4 rounded-2xl flex-shrink-0 ${
+                        aiAnalysis.sentiment === 'positive' ? 'bg-green-100 text-green-600' : 
+                        aiAnalysis.sentiment === 'negative' ? 'bg-red-100 text-red-600' : 
+                        'bg-slate-100 text-slate-600'
+                      }`}>
+                        {aiAnalysis.sentiment === 'positive' ? <TrendingUp size={32} /> : 
+                         aiAnalysis.sentiment === 'negative' ? <AlertCircle size={32} /> : 
+                         <MessageSquare size={32} />}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">Celkové shrnutí</h3>
+                        <p className="text-slate-600 text-lg leading-relaxed">{aiAnalysis.summary}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Positives */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      Co zákazníci oceňují
+                    </h3>
+                    <ul className="space-y-3">
+                      {aiAnalysis.positives.map((item: string, i: number) => (
+                        <li key={i} className="flex items-start gap-3 bg-green-50 p-3 rounded-lg text-green-800 text-sm">
+                          <span className="font-bold text-green-600 min-w-[1.5rem]">{i + 1}.</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Negatives */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      Co zákazníkům vadí
+                    </h3>
+                    <ul className="space-y-3">
+                      {aiAnalysis.negatives.map((item: string, i: number) => (
+                        <li key={i} className="flex items-start gap-3 bg-red-50 p-3 rounded-lg text-red-800 text-sm">
+                          <span className="font-bold text-red-600 min-w-[1.5rem]">{i + 1}.</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Recommendations */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 md:col-span-2">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                      Doporučení pro zlepšení
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {aiAnalysis.recommendations.map((item: string, i: number) => (
+                        <div key={i} className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 hover:shadow-md transition">
+                          <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold mb-3 text-sm">
+                            {i + 1}
+                          </div>
+                          <p className="text-indigo-900 text-sm font-medium leading-relaxed">{item}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+                  <div className="w-20 h-20 bg-indigo-50 text-indigo-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Sparkles size={40} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">Zatím žádná analýza</h3>
+                  <p className="text-slate-500 mb-8 max-w-md mx-auto">Klikněte na tlačítko níže pro vygenerování první AI analýzy vašich recenzí. Zjistíte, co si zákazníci myslí a jak můžete zlepšit své služby.</p>
+                  <button 
+                    onClick={fetchAiAnalysis}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-indigo-200 flex items-center gap-2 mx-auto"
+                  >
+                    <Sparkles size={20} /> Vygenerovat analýzu
+                  </button>
+                </div>
+              )}
+            </AnimatedDiv>
+          )}
 
         </div>
       </div>
