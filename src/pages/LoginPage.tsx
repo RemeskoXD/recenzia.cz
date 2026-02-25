@@ -1,12 +1,14 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AnimatedDiv } from '../components/AnimatedDiv';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -26,20 +28,20 @@ export default function LoginPage() {
         navigate(`/dashboard/${data.companyId}`);
       } else {
         const data = await response.json();
-        setError(data.error || 'Login failed');
+        setError(data.error || t('errorLogin'));
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(t('errorGeneric'));
     }
   };
 
   return (
     <AnimatedDiv className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center text-slate-900">Přihlášení</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center text-slate-900">{t('loginTitle')}</h2>
       {error && <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">{error}</div>}
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('email')}</label>
           <input
             type="email"
             value={email}
@@ -49,7 +51,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Heslo</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('password')}</label>
           <input
             type="password"
             value={password}
@@ -62,11 +64,11 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-sky-600 text-white py-2 rounded-lg hover:bg-sky-700 transition font-semibold"
         >
-          Přihlásit se
+          {t('loginButton')}
         </button>
       </form>
       <p className="mt-4 text-center text-sm text-slate-600">
-        Nemáte účet? <Link to="/register" className="text-sky-600 hover:underline">Zaregistrujte se</Link>
+        {t('noAccount')} <Link to="/register" className="text-sky-600 hover:underline">{t('registerLink')}</Link>
       </p>
     </AnimatedDiv>
   );
