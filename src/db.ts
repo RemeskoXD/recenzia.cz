@@ -25,6 +25,9 @@ export async function initDb() {
         password VARCHAR(255),
         redirect_url VARCHAR(255),
         plan VARCHAR(50) DEFAULT 'basic',
+        role VARCHAR(50) DEFAULT 'user',
+        expires_at TIMESTAMP NULL,
+        stripe_customer_id VARCHAR(255),
         custom_question VARCHAR(255),
         positive_threshold INT DEFAULT 5,
         url_google VARCHAR(255),
@@ -59,6 +62,15 @@ export async function initDb() {
 
     // Migrace: Přidání sloupců pokud neexistují (pro existující instalace)
     try {
+      await connection.query("ALTER TABLE companies ADD COLUMN role VARCHAR(50) DEFAULT 'user'");
+    } catch (e) {}
+    try {
+      await connection.query("ALTER TABLE companies ADD COLUMN expires_at TIMESTAMP NULL");
+    } catch (e) {}
+    try {
+      await connection.query("ALTER TABLE companies ADD COLUMN stripe_customer_id VARCHAR(255)");
+    } catch (e) {}
+    try {
       await connection.query("ALTER TABLE companies ADD COLUMN qr_bg_color VARCHAR(50) DEFAULT '#ffffff'");
     } catch (e) {}
     try {
@@ -81,18 +93,28 @@ export async function initDb() {
     } catch (e) {}
 
     // Seed default company if not exists
-    const [rows]: any = await connection.query('SELECT * FROM companies WHERE id = 1');
-    if (rows.length === 0) {
-      // Default password is 'password' (hashed in server.ts, but here we just insert plain if needed, or better, let the user register)
-      // We will insert a hashed password for 'password' (sha256)
-      const crypto = await import('crypto');
-      const hashedPassword = crypto.createHash('sha256').update('password').digest('hex');
-      
+    const crypto = await import('crypto');
+    
+    // Admin 1
+    const [admin1Rows]: any = await connection.query('SELECT * FROM companies WHERE email = ?', ['ludvikremesekwork@gmail.com']);
+    if (admin1Rows.length === 0) {
+      const hashedAdmin1 = crypto.createHash('sha256').update('Mescon2025.2026.*').digest('hex');
       await connection.query(
-        'INSERT INTO companies (id, name, email, password, redirect_url, plan) VALUES (?, ?, ?, ?, ?, ?)',
-        [1, 'Mescon digital s.r.o.', 'info@mescon.cz', hashedPassword, 'https://www.google.com/search?q=Mescon+digital+s.r.o.', 'premium']
+        'INSERT INTO companies (name, email, password, role, plan) VALUES (?, ?, ?, ?, ?)',
+        ['Admin Ludvík', 'ludvikremesekwork@gmail.com', hashedAdmin1, 'admin', 'premium']
       );
     }
+
+    // Admin 2
+    const [admin2Rows]: any = await connection.query('SELECT * FROM companies WHERE email = ?', ['vaclav.gabriel@mescon.com']);
+    if (admin2Rows.length === 0) {
+      const hashedAdmin2 = crypto.createHash('sha256').update('Mescon2025.').digest('hex');
+      await connection.query(
+        'INSERT INTO companies (name, email, password, role, plan) VALUES (?, ?, ?, ?, ?)',
+        ['Admin Václav', 'vaclav.gabriel@mescon.com', hashedAdmin2, 'admin', 'premium']
+      );
+    }
+
 
     connection.release();
     console.log("MySQL Database initialized successfully.");

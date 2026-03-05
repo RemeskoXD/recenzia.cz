@@ -58,11 +58,12 @@ async function startServer() {
         const session = event.data.object as Stripe.Checkout.Session;
         const companyId = session.metadata?.companyId;
         const plan = session.metadata?.plan;
+        const customerId = session.customer as string;
 
         if (companyId && plan) {
           try {
-            await pool.query('UPDATE companies SET plan = ? WHERE id = ?', [plan, companyId]);
-            console.log(`Updated company ${companyId} to plan ${plan}`);
+            await pool.query('UPDATE companies SET plan = ?, stripe_customer_id = ?, expires_at = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE id = ?', [plan, customerId, companyId]);
+            console.log(`Updated company ${companyId} to plan ${plan} with expiration 30 days from now`);
           } catch (dbErr) {
             console.error('Database error updating plan:', dbErr);
           }
@@ -121,6 +122,43 @@ async function startServer() {
     } catch (error: any) {
       console.error('Stripe error:', error);
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/create-portal-session', async (req, res) => {
+    if (!stripe) {
+      return res.status(500).json({ error: 'Stripe is not configured' });
+    }
+
+    const { companyId } = req.body;
+
+    try {
+      const [rows]: any = await pool.query('SELECT stripe_customer_id FROM companies WHERE id = ?', [companyId]);
+      const company = rows[0];
+
+      if (!company || !company.stripe_customer_id) {
+        return res.status(400).json({ error: 'No active subscription found' });
+      }
+
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: company.stripe_customer_id,
+        return_url: `${req.protocol}://${req.get('host')}/dashboard/${companyId}`,
+      });
+
+      res.json({ url: portalSession.url });
+    } catch (error: any) {
+      console.error('Stripe portal error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin Routes
+  app.get('/api/admin/companies', async (req, res) => {
+    try {
+      const [rows]: any = await pool.query('SELECT id, name, email, plan, role, expires_at, created_at FROM companies ORDER BY created_at DESC');
+      res.json(rows);
+    } catch (error) {
+      res.status(500).json({ error: 'Database error' });
     }
   });
 
@@ -281,11 +319,11 @@ async function startServer() {
 
     try {
       const hashedPassword = createHash('sha256').update(password).digest('hex');
-      const [rows]: any = await pool.query('SELECT id, name FROM companies WHERE email = ? AND password = ?', [email, hashedPassword]);
+      const [rows]: any = await pool.query('SELECT id, name, role FROM companies WHERE email = ? AND password = ?', [email, hashedPassword]);
       const company = rows[0];
 
       if (company) {
-        res.json({ success: true, companyId: company.id, companyName: company.name });
+        res.json({ success: true, companyId: company.id, companyName: company.name, role: company.role });
       } else {
         res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -296,7 +334,7 @@ async function startServer() {
 
   app.get('/api/companies/:id', async (req, res) => {
     try {
-      const [rows]: any = await pool.query('SELECT id, name, redirect_url, custom_question, positive_threshold, url_google, url_facebook, url_firmy, url_tripadvisor, qr_color, qr_bg_color, qr_style, qr_logo FROM companies WHERE id = ?', [req.params.id]);
+      const [rows]: any = await pool.query('SELECT id, name, redirect_url, custom_question, positive_threshold, url_google, url_facebook, url_firmy, url_tripadvisor, qr_color, qr_bg_color, qr_style, qr_logo, plan, role, expires_at, stripe_customer_id FROM companies WHERE id = ?', [req.params.id]);
       const company = rows[0];
       
       if (company) {

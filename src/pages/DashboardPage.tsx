@@ -88,6 +88,24 @@ export default function DashboardPage() {
     setReviews(reviews.filter(r => r.id !== reviewId));
   };
 
+  const handleManageSubscription = async () => {
+    try {
+      const response = await fetch('/api/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to open subscription manager');
+      }
+    } catch (error) {
+      console.error('Error opening portal:', error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('companyId');
     localStorage.removeItem('companyName');
@@ -240,6 +258,12 @@ export default function DashboardPage() {
           <p className="text-slate-500 text-sm mt-1">{t('adminReviews')}</p>
         </div>
         <div className="flex gap-3">
+          {company.stripe_customer_id && (
+            <button onClick={handleManageSubscription} className="flex items-center gap-2 text-slate-600 hover:text-sky-600 px-4 py-2 rounded-lg hover:bg-sky-50 transition text-sm font-medium">
+              <Settings size={18} />
+              Spravovat předplatné
+            </button>
+          )}
           <button onClick={handleLogout} className="flex items-center gap-2 text-slate-600 hover:text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition text-sm font-medium">
             <LogOut size={18} />
             {t('logout')}

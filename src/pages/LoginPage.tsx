@@ -25,7 +25,13 @@ export default function LoginPage() {
         const data = await response.json();
         localStorage.setItem('companyId', data.companyId);
         localStorage.setItem('companyName', data.companyName);
-        navigate(`/dashboard/${data.companyId}`);
+        localStorage.setItem('role', data.role);
+        
+        if (data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate(`/dashboard/${data.companyId}`);
+        }
       } else {
         const data = await response.json();
         setError(data.error || t('loginFailed'));

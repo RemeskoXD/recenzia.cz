@@ -9,6 +9,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import WidgetPage from './pages/WidgetPage';
+import AdminPage from './pages/AdminPage';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import CookieConsent from './components/CookieConsent';
 
@@ -17,11 +18,13 @@ function Navigation() {
   const location = useLocation();
   const isLoggedIn = !!localStorage.getItem('companyId');
   const companyName = localStorage.getItem('companyName');
+  const role = localStorage.getItem('role');
   const { t } = useLanguage();
 
   const handleLogout = () => {
     localStorage.removeItem('companyId');
     localStorage.removeItem('companyName');
+    localStorage.removeItem('role');
     navigate('/');
   };
 
@@ -49,12 +52,21 @@ function Navigation() {
               >
                 {t('logout')}
               </button>
-              <Link 
-                to={`/dashboard/${localStorage.getItem('companyId')}`}
-                className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-700 transition shadow-sm hover:shadow-md"
-              >
-                {t('dashboard')}
-              </Link>
+              {role === 'admin' ? (
+                <Link 
+                  to="/admin"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition shadow-sm hover:shadow-md"
+                >
+                  Administrace
+                </Link>
+              ) : (
+                <Link 
+                  to={`/dashboard/${localStorage.getItem('companyId')}`}
+                  className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-700 transition shadow-sm hover:shadow-md"
+                >
+                  {t('dashboard')}
+                </Link>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-4 text-sm font-medium">
@@ -141,6 +153,7 @@ export default function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/review/:companyId" element={<ReviewPage />} />
                 <Route path="/dashboard/:companyId" element={<DashboardPage />} />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/widget/:companyId" element={<WidgetPage />} />
