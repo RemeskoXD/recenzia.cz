@@ -37,8 +37,6 @@ export default function DashboardPage() {
   const [settingsQrStyle, setSettingsQrStyle] = useState('squares');
   const [settingsQrLogo, setSettingsQrLogo] = useState('none');
   const [settingsSaved, setSettingsSaved] = useState(false);
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
-  const [loadingAi, setLoadingAi] = useState(false);
 
   const qrRef = useRef(null);
 
@@ -133,21 +131,6 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Failed to save settings', error);
-    }
-  };
-
-  const fetchAiAnalysis = async () => {
-    setLoadingAi(true);
-    try {
-      const response = await fetch(`/api/ai-analysis/${companyId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAiAnalysis(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch AI analysis', error);
-    } finally {
-      setLoadingAi(false);
     }
   };
 
@@ -944,108 +927,21 @@ export default function DashboardPage() {
                       {t('aiAnalysisDesc')}
                     </p>
                   </div>
-                  <button 
-                    onClick={fetchAiAnalysis}
-                    disabled={loadingAi}
-                    className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 backdrop-blur-sm whitespace-nowrap"
-                  >
-                    {loadingAi ? t('analyzing') : t('updateAnalysis')}
-                  </button>
+                  <div className="bg-white/20 px-4 py-2 rounded-lg font-medium backdrop-blur-sm whitespace-nowrap">
+                    {t('comingSoon')}
+                  </div>
                 </div>
               </div>
 
-              {loadingAi ? (
-                <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
-                  <div className="animate-spin w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
-                  <h3 className="text-lg font-semibold text-slate-900">{t('generatingAnalysis')}</h3>
-                  <p className="text-slate-500">{t('pleaseWait')}</p>
+              <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+                <div className="w-20 h-20 bg-indigo-50 text-indigo-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Sparkles size={40} />
                 </div>
-              ) : aiAnalysis ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Sentiment & Summary */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 md:col-span-2">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                      <div className={`p-4 rounded-2xl flex-shrink-0 ${
-                        aiAnalysis.sentiment === 'positive' ? 'bg-green-100 text-green-600' : 
-                        aiAnalysis.sentiment === 'negative' ? 'bg-red-100 text-red-600' : 
-                        'bg-slate-100 text-slate-600'
-                      }`}>
-                        {aiAnalysis.sentiment === 'positive' ? <TrendingUp size={32} /> : 
-                         aiAnalysis.sentiment === 'negative' ? <AlertCircle size={32} /> : 
-                         <MessageSquare size={32} />}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-2">{t('overallSummary')}</h3>
-                        <p className="text-slate-600 text-lg leading-relaxed">{aiAnalysis.summary}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Positives */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      {t('whatCustomersAppreciate')}
-                    </h3>
-                    <ul className="space-y-3">
-                      {aiAnalysis.positives.map((item: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3 bg-green-50 p-3 rounded-lg text-green-800 text-sm">
-                          <span className="font-bold text-green-600 min-w-[1.5rem]">{i + 1}.</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Negatives */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                      {t('whatCustomersDislike')}
-                    </h3>
-                    <ul className="space-y-3">
-                      {aiAnalysis.negatives.map((item: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3 bg-red-50 p-3 rounded-lg text-red-800 text-sm">
-                          <span className="font-bold text-red-600 min-w-[1.5rem]">{i + 1}.</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Recommendations */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 md:col-span-2">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                      {t('recommendationsForImprovement')}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {aiAnalysis.recommendations.map((item: string, i: number) => (
-                        <div key={i} className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 hover:shadow-md transition">
-                          <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold mb-3 text-sm">
-                            {i + 1}
-                          </div>
-                          <p className="text-indigo-900 text-sm font-medium leading-relaxed">{item}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
-                  <div className="w-20 h-20 bg-indigo-50 text-indigo-300 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Sparkles size={40} />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{t('noAnalysisYet')}</h3>
-                  <p className="text-slate-500 mb-8 max-w-md mx-auto">{t('noAnalysisDesc')}</p>
-                  <button 
-                    onClick={fetchAiAnalysis}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition shadow-lg shadow-indigo-200 flex items-center gap-2 mx-auto"
-                  >
-                    <Sparkles size={20} /> {t('generateAnalysis')}
-                  </button>
-                </div>
-              )}
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{t('comingSoon')}</h3>
+                <p className="text-slate-500 mb-8 max-w-md mx-auto">
+                  {t('aiAnalysisComingSoon')}
+                </p>
+              </div>
             </AnimatedDiv>
           )}
 
