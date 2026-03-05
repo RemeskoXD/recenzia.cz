@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
 import { jsPDF } from 'jspdf';
 import { AnimatedDiv } from '../components/AnimatedDiv';
-import { Download, Filter, Star, Archive, LogOut, LayoutDashboard, QrCode, MessageSquare, TrendingUp, AlertCircle, PieChart as PieChartIcon, Tag, Settings, Save, Code, User, Mail, Phone, FileText, Globe } from 'lucide-react';
+import { Download, Filter, Star, Archive, LogOut, LayoutDashboard, QrCode, MessageSquare, TrendingUp, AlertCircle, PieChart as PieChartIcon, Tag, Settings, Save, Code, User, Mail, Phone, FileText, Globe, Sparkles } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from 'recharts';
 
 import { Helmet } from 'react-helmet-async';
@@ -37,6 +37,8 @@ export default function DashboardPage() {
   const [settingsQrStyle, setSettingsQrStyle] = useState('squares');
   const [settingsQrLogo, setSettingsQrLogo] = useState('none');
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
 
   const qrRef = useRef(null);
 
@@ -131,6 +133,21 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Failed to save settings', error);
+    }
+  };
+
+  const fetchAiAnalysis = async () => {
+    setLoadingAi(true);
+    try {
+      const response = await fetch(`/api/ai-analysis/${companyId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAiAnalysis(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch AI analysis', error);
+    } finally {
+      setLoadingAi(false);
     }
   };
 

@@ -133,6 +133,10 @@ export const translations = {
     decline: 'Odmítnout',
     privacyPolicy: 'Ochrana osobních údajů',
     termsOfService: 'Podmínky použití',
+    termsTitle: 'Obchodní podmínky',
+    termsContent: '1. Úvodní ustanovení\nTyto obchodní podmínky upravují vztah mezi poskytovatelem služby a uživatelem.\n2. Registrace\nUživatel se zavazuje uvádět pravdivé údaje.\n3. Platby\nPlatby za služby jsou prováděny prostřednictvím platební brány Stripe.\n4. Ochrana dat\nVaše data jsou u nás v bezpečí.',
+    privacyTitle: 'Ochrana osobních údajů',
+    privacyContent: '1. Správce údajů\nSprávcem vašich osobních údajů je provozovatel této služby.\n2. Rozsah zpracování\nZpracováváme údaje nezbytné pro poskytování služby (email, název firmy).\n3. Účel zpracování\nÚdaje zpracováváme za účelem plnění smlouvy a zlepšování služeb.\n4. Vaše práva\nMáte právo na přístup k údajům, jejich opravu nebo výmaz.',
     
     // Footer
     footerDesc: 'Pomáháme firmám získávat více pozitivních recenzí a chránit jejich reputaci. Jednoduše, efektivně a automatizovaně.',
@@ -372,6 +376,10 @@ export const translations = {
     decline: 'Decline',
     privacyPolicy: 'Privacy Policy',
     termsOfService: 'Terms of Service',
+    termsTitle: 'Terms of Service',
+    termsContent: '1. Introduction\nThese terms and conditions govern the relationship between the service provider and the user.\n2. Registration\nThe user agrees to provide true information.\n3. Payments\nPayments for services are made through the Stripe payment gateway.\n4. Data Protection\nYour data is safe with us.',
+    privacyTitle: 'Privacy Policy',
+    privacyContent: '1. Data Controller\nThe controller of your personal data is the operator of this service.\n2. Scope of Processing\nWe process data necessary for providing the service (email, company name).\n3. Purpose of Processing\nWe process data for the purpose of fulfilling the contract and improving services.\n4. Your Rights\nYou have the right to access, correct, or delete your data.',
     
     // Footer
     footerDesc: 'We help companies get more positive reviews and protect their reputation. Simply, effectively, and automatically.',
@@ -598,6 +606,10 @@ export const translations = {
     decline: 'Ablehnen',
     privacyPolicy: 'Datenschutzrichtlinie',
     termsOfService: 'Nutzungsbedingungen',
+    termsTitle: 'Nutzungsbedingungen',
+    termsContent: '1. Einleitung\nDiese Bedingungen regeln die Beziehung zwischen dem Dienstanbieter und dem Nutzer.\n2. Registrierung\nDer Nutzer verpflichtet sich, wahre Angaben zu machen.\n3. Zahlungen\nZahlungen für Dienstleistungen erfolgen über das Stripe-Zahlungsgateway.\n4. Datenschutz\nIhre Daten sind bei uns sicher.',
+    privacyTitle: 'Datenschutzrichtlinie',
+    privacyContent: '1. Verantwortlicher\nVerantwortlicher für Ihre personenbezogenen Daten ist der Betreiber dieses Dienstes.\n2. Umfang der Verarbeitung\nWir verarbeiten Daten, die für die Erbringung des Dienstes erforderlich sind (E-Mail, Firmenname).\n3. Zweck der Verarbeitung\nWir verarbeiten Daten zum Zweck der Vertragserfüllung und zur Verbesserung der Dienste.\n4. Ihre Rechte\nSie haben das Recht auf Auskunft, Berichtigung oder Löschung Ihrer Daten.',
     
     // Footer
     footerDesc: 'Wir helfen Unternehmen, mehr positive Bewertungen zu erhalten und ihren Ruf zu schützen. Einfach, effektiv und automatisch.',
@@ -824,6 +836,10 @@ export const translations = {
     decline: 'Rechazar',
     privacyPolicy: 'Política de privacidad',
     termsOfService: 'Términos de servicio',
+    termsTitle: 'Términos de servicio',
+    termsContent: '1. Introducción\nEstos términos y condiciones rigen la relación entre el proveedor del servicio y el usuario.\n2. Registro\nEl usuario acepta proporcionar información verdadera.\n3. Pagos\nLos pagos por los servicios se realizan a través de la pasarela de pago Stripe.\n4. Protección de datos\nSus datos están seguros con nosotros.',
+    privacyTitle: 'Política de privacidad',
+    privacyContent: '1. Responsable del tratamiento\nEl responsable de sus datos personales es el operador de este servicio.\n2. Alcance del tratamiento\nProcesamos los datos necesarios para la prestación del servicio (correo electrónico, nombre de la empresa).\n3. Finalidad del tratamiento\nProcesamos los datos con el fin de cumplir el contrato y mejorar los servicios.\n4. Sus derechos\nTiene derecho a acceder, corregir o eliminar sus datos.',
     
     // Footer
     footerDesc: 'Ayudamos a las empresas a obtener más reseñas positivas y proteger su reputación. De forma sencilla, eficaz y automática.',

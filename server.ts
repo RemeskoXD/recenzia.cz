@@ -3,7 +3,14 @@ import { createServer as createViteServer } from 'vite';
 import { createHash } from 'crypto';
 import pool, { initDb } from './src/db.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { GoogleGenAI, Type } from "@google/genai";
 import Stripe from 'stripe';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize Stripe with secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -238,6 +245,48 @@ async function startServer() {
   });
 
   // API Routes
+  app.get('/api/ai-analysis/:companyId', async (req, res) => {
+    const companyId = req.params.companyId;
+    try {
+      // Get all reviews for this company
+      const [reviews]: any = await pool.query('SELECT rating, comment FROM reviews WHERE company_id = ? AND comment IS NOT NULL AND comment != ""', [companyId]);
+      
+      if (reviews.length === 0) {
+        return res.status(400).json({ error: 'No reviews with comments found for analysis' });
+      }
+
+      const reviewsText = reviews.map((r: any) => `Rating: ${r.rating}, Comment: ${r.comment}`).join('\n');
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Analyze the following customer reviews and provide a summary, sentiment, positives, negatives, and recommendations for improvement.
+        
+        Reviews:
+        ${reviewsText}`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING },
+              sentiment: { type: Type.STRING, description: "positive, negative, or neutral" },
+              positives: { type: Type.ARRAY, items: { type: Type.STRING } },
+              negatives: { type: Type.ARRAY, items: { type: Type.STRING } },
+              recommendations: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ["summary", "sentiment", "positives", "negatives", "recommendations"]
+          }
+        }
+      });
+
+      const analysis = JSON.parse(response.text || '{}');
+      res.json(analysis);
+    } catch (error: any) {
+      console.error('AI Analysis error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post('/api/register', async (req, res) => {
     const { name, email, password, plan } = req.body;
     
@@ -561,7 +610,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
