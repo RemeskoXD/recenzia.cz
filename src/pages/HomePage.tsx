@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <div className="overflow-hidden">
       <Helmet>
-        <title>{t('heroTitle1')} {t('heroTitle2')} | Recenzia.cz</title>
+        <title>{t('heroTitle1')} {t('heroTitle2')} | mesrate.cz</title>
         <meta name="description" content={t('heroSubtitle')} />
       </Helmet>
 

@@ -20,7 +20,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (['cs', 'cz'].includes(browserLang)) setLanguage('cz');
     else if (['de'].includes(browserLang)) setLanguage('de');
     else if (['es'].includes(browserLang)) setLanguage('es');
-    else setLanguage('en'); // Default fallback
+    else if (['en'].includes(browserLang)) setLanguage('en');
+    else setLanguage('cz'); // Default fallback to Czech
     
     // Check local storage override
     const storedLang = localStorage.getItem('language') as Language;

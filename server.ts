@@ -2,6 +2,11 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { createHash } from 'crypto';
 import pool, { initDb } from './src/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function getCountryFromIp(ip: string): Promise<string> {
   try {
@@ -19,7 +24,7 @@ async function getCountryFromIp(ip: string): Promise<string> {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
 
@@ -458,6 +463,14 @@ async function startServer() {
       appType: 'spa',
     });
     app.use(vite.middlewares);
+  } else {
+    // Serve static files in production
+    app.use(express.static(path.join(__dirname, 'dist')));
+    
+    // Fallback to index.html for SPA routing
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {

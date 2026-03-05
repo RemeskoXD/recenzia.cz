@@ -17,6 +17,11 @@ const CookieConsent = () => {
     setShow(false);
   };
 
+  const handleDecline = () => {
+    localStorage.setItem('cookieConsent', 'false');
+    setShow(false);
+  };
+
   if (!show) return null;
 
   return (
@@ -26,6 +31,9 @@ const CookieConsent = () => {
         <p>{t('cookiesText')}</p>
       </div>
       <div className="flex gap-2">
+        <button onClick={handleDecline} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          {t('decline')}
+        </button>
         <button onClick={handleAccept} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
           {t('accept')}
         </button>

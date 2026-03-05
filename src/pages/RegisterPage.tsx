@@ -40,10 +40,10 @@ export default function RegisterPage() {
         navigate(`/dashboard/${data.companyId}`);
       } else {
         const data = await response.json();
-        setError(data.error || t('errorRegister'));
+        setError(data.error || t('registrationFailed'));
       }
     } catch (err) {
-      setError(t('errorGeneric'));
+      setError(t('genericError'));
     }
   };
 
@@ -53,7 +53,7 @@ export default function RegisterPage() {
       {error && <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">{error}</div>}
       <form onSubmit={handleRegister} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('companyName')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('companyNameLabel')}</label>
           <input
             type="text"
             value={name}
@@ -63,7 +63,7 @@ export default function RegisterPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('email')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('emailLabel')}</label>
           <input
             type="email"
             value={email}
@@ -73,7 +73,7 @@ export default function RegisterPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('password')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('passwordLabel')}</label>
           <input
             type="password"
             value={password}
@@ -83,18 +83,18 @@ export default function RegisterPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('redirectUrl')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('redirectUrlLabel')}</label>
           <input
             type="url"
             value={redirectUrl}
             onChange={(e) => setRedirectUrl(e.target.value)}
             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none"
-            placeholder="https://..."
+            placeholder={t('redirectUrlPlaceholder')}
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">{t('selectedPlan')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-2">{t('selectedPlanLabel')}</label>
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
@@ -102,7 +102,7 @@ export default function RegisterPage() {
               className={`p-3 rounded-lg border text-center transition ${plan === 'basic' ? 'border-sky-500 bg-sky-50 text-sky-700 ring-1 ring-sky-500' : 'border-slate-200 hover:border-slate-300'}`}
             >
               <div className="font-bold">{t('planBasic')}</div>
-              <div className="text-xs text-slate-500">{t('planBasicPrice')}{t('planBasicPeriod')}</div>
+              <div className="text-xs text-slate-500">{t('planBasicPriceShort')}</div>
             </button>
             <button
               type="button"
@@ -110,7 +110,7 @@ export default function RegisterPage() {
               className={`p-3 rounded-lg border text-center transition ${plan === 'premium' ? 'border-sky-500 bg-sky-50 text-sky-700 ring-1 ring-sky-500' : 'border-slate-200 hover:border-slate-300'}`}
             >
               <div className="font-bold">{t('planPremium')}</div>
-              <div className="text-xs text-slate-500">{t('planPremiumPrice')}{t('planPremiumPeriod')}</div>
+              <div className="text-xs text-slate-500">{t('planPremiumPriceShort')}</div>
             </button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function RegisterPage() {
         </button>
       </form>
       <p className="mt-4 text-center text-sm text-slate-600">
-        {t('alreadyAccount')} <Link to="/login" className="text-sky-600 hover:underline">{t('loginLink')}</Link>
+        {t('alreadyHaveAccount')} <Link to="/login" className="text-sky-600 hover:underline">{t('loginLink')}</Link>
       </p>
     </AnimatedDiv>
   );

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Star } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function WidgetPage() {
   const { companyId } = useParams();
   const [data, setData] = useState(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch(`/api/widget/${companyId}/data`)
@@ -31,7 +33,7 @@ export default function WidgetPage() {
             ))}
           </div>
         </div>
-        <span className="text-xs text-slate-500 font-medium">Na základě {data.total} hodnocení</span>
+        <span className="text-xs text-slate-500 font-medium">{t('basedOn')} {data.total} {t('reviewsCount')}</span>
       </div>
     </div>
   );

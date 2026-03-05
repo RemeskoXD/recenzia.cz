@@ -34,8 +34,8 @@ function Navigation() {
     <header className="bg-white/80 backdrop-blur-lg border-b border-slate-200/80 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-110 transition-transform">R</div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Recenzia.cz</h1>
+          <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-110 transition-transform">M</div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">mesrate.cz</h1>
         </Link>
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
@@ -82,15 +82,15 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-lg">R</div>
-              <span className="text-xl font-bold text-slate-900">Recenzia.cz</span>
+              <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-lg">M</div>
+              <span className="text-xl font-bold text-slate-900">mesrate.cz</span>
             </Link>
             <p className="text-slate-500 text-sm max-w-xs leading-relaxed">
-              Pomáháme firmám získávat více pozitivních recenzí a chránit jejich reputaci. Jednoduše, efektivně a automatizovaně.
+              {t('footerDesc')}
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 mb-4">Společnost</h3>
+            <h3 className="font-bold text-slate-900 mb-4">{t('company')}</h3>
             <ul className="space-y-2 text-sm text-slate-500">
               <li>MESCON DIGITAL s.r.o.</li>
               <li>IČO: 23580763</li>
@@ -99,7 +99,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 mb-4">Právní informace</h3>
+            <h3 className="font-bold text-slate-900 mb-4">{t('legalInfo')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/terms" className="text-slate-500 hover:text-sky-600 transition">{t('termsOfService')}</Link>
@@ -119,7 +119,7 @@ function Footer() {
           </div>
         </div>
         <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-          <p>&copy; {new Date().getFullYear()} Recenzia.cz. Všechna práva vyhrazena.</p>
+          <p>&copy; {new Date().getFullYear()} mesrate.cz. {t('allRightsReserved')}</p>
           <p>{t('poweredBy')} <a href="https://www.mescon.digital/" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:text-sky-600 transition">Mescon digital s.r.o.</a></p>
         </div>
       </div>

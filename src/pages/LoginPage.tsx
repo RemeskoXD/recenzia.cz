@@ -28,10 +28,10 @@ export default function LoginPage() {
         navigate(`/dashboard/${data.companyId}`);
       } else {
         const data = await response.json();
-        setError(data.error || t('errorLogin'));
+        setError(data.error || t('loginFailed'));
       }
     } catch (err) {
-      setError(t('errorGeneric'));
+      setError(t('genericError'));
     }
   };
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
       {error && <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">{error}</div>}
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('email')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('emailLabel')}</label>
           <input
             type="email"
             value={email}
@@ -51,7 +51,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">{t('password')}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('passwordLabel')}</label>
           <input
             type="password"
             value={password}
