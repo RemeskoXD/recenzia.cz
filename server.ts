@@ -3,10 +3,14 @@ import { createServer as createViteServer } from 'vite';
 import { createHash } from 'crypto';
 import pool, { initDb } from './src/db.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import Stripe from 'stripe';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Initialize Stripe with secret key
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY) 
+  : null;
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 async function getCountryFromIp(ip: string): Promise<string> {
   try {
@@ -26,10 +30,94 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  // Stripe Webhook needs raw body
+  app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    if (!stripe || !webhookSecret) {
+      console.error('Stripe or Webhook Secret not configured');
+      return res.status(400).send('Webhook Error: Stripe not configured');
+    }
+
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig!, webhookSecret);
+    } catch (err: any) {
+      console.error(`Webhook Error: ${err.message}`);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object as Stripe.Checkout.Session;
+        const companyId = session.metadata?.companyId;
+        const plan = session.metadata?.plan;
+
+        if (companyId && plan) {
+          try {
+            await pool.query('UPDATE companies SET plan = ? WHERE id = ?', [plan, companyId]);
+            console.log(`Updated company ${companyId} to plan ${plan}`);
+          } catch (dbErr) {
+            console.error('Database error updating plan:', dbErr);
+          }
+        }
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({ received: true });
+  });
+
   app.use(express.json());
 
   // Initialize DB
   await initDb();
+
+  // Stripe Checkout Endpoint
+  app.post('/api/create-checkout-session', async (req, res) => {
+    if (!stripe) {
+      return res.status(500).json({ error: 'Stripe is not configured' });
+    }
+
+    const { plan, companyId } = req.body;
+    
+    const prices = {
+      basic: process.env.STRIPE_PRICE_BASIC || 'price_basic_placeholder',
+      premium: process.env.STRIPE_PRICE_PREMIUM || 'price_premium_placeholder',
+    };
+
+    const priceId = prices[plan as keyof typeof prices];
+
+    if (!priceId) {
+      return res.status(400).json({ error: 'Invalid plan' });
+    }
+
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: `${req.protocol}://${req.get('host')}/dashboard/${companyId}?success=true`,
+        cancel_url: `${req.protocol}://${req.get('host')}/register?canceled=true`,
+        metadata: {
+          companyId: companyId.toString(),
+          plan: plan
+        },
+      });
+
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error('Stripe error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
 
   // Sitemap Endpoint
   app.get('/sitemap.xml', async (req, res) => {

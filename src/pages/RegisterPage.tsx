@@ -37,6 +37,30 @@ export default function RegisterPage() {
         // Auto login after register
         localStorage.setItem('companyId', data.companyId);
         localStorage.setItem('companyName', name);
+
+        // If plan is paid, redirect to Stripe Checkout
+        if (plan === 'basic' || plan === 'premium') {
+          try {
+            const checkoutResponse = await fetch('/api/create-checkout-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ plan, companyId: data.companyId }),
+            });
+            
+            if (checkoutResponse.ok) {
+              const { url } = await checkoutResponse.json();
+              window.location.href = url;
+              return;
+            } else {
+              console.error('Failed to create checkout session');
+              // Fallback to dashboard if checkout fails, but warn user?
+              // For now, just go to dashboard
+            }
+          } catch (e) {
+            console.error('Error redirecting to checkout:', e);
+          }
+        }
+
         navigate(`/dashboard/${data.companyId}`);
       } else {
         const data = await response.json();
